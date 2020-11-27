@@ -28,7 +28,7 @@ public class MainMenuPageAdmin extends JPanel {
         add(flightsButton);
 
         JButton exitButton = new JButton("EXIT");
-        exitButton.setBounds(250, 290, 200, 50);
+        exitButton.setBounds(250, 360, 200, 50);
         add(exitButton);
 
         exitButton.addActionListener(new ActionListener() {
@@ -61,7 +61,10 @@ public class MainMenuPageAdmin extends JPanel {
         flightsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                mainFrameAdmin.getMainMenuPageAdmin().setVisible(false);
+                mainFrameAdmin.getSettingsFlightsPageAdmin().setVisible(true);
+                mainFrameAdmin.getAircraftsNames();
+                mainFrameAdmin.getCitiesNames();
             }
         });
 

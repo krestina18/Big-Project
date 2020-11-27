@@ -131,6 +131,7 @@ public class SettingsCitiesMenuPageAdmin extends JPanel {
                     City city = new City(id, name, country, shortName);
                     mainFrameAdmin.updateCity(city);
                 }
+                mainFrameAdmin.generateCitiesTable();
             }
         });
         backButton.addActionListener(new ActionListener() {

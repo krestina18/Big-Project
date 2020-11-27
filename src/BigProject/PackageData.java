@@ -7,11 +7,18 @@ public class PackageData implements Serializable {
     private City city;
     private String value;
     private Aircraft aircraft;
+    private Flight flight;
+
 
 
     public PackageData(String operationType, City city) {
         this.operationType = operationType;
         this.city = city;
+    }
+
+    public PackageData(String operationType, Flight flight) {
+        this.operationType = operationType;
+        this.flight = flight;
     }
 
     public PackageData(String operationType) {
@@ -59,5 +66,13 @@ public class PackageData implements Serializable {
 
     public void setAircraft(Aircraft aircraft) {
         this.aircraft = aircraft;
+    }
+
+    public Flight getFlight() {
+        return flight;
+    }
+
+    public void setFlight(Flight flight) {
+        this.flight = flight;
     }
 }
