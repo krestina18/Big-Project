@@ -1,7 +1,9 @@
 package BigProject;
 
 
-public class Flight {
+import java.io.Serializable;
+
+public class Flight implements Serializable {
     private Long id;
     private int aircraft_id;
     private int departure_city_id;
@@ -75,4 +77,5 @@ public class Flight {
     public void setBusiness_place_price(int business_place_price) {
         this.business_place_price = business_place_price;
     }
+
 }

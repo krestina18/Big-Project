@@ -8,8 +8,7 @@ public class PackageData implements Serializable {
     private String value;
     private Aircraft aircraft;
     private Flight flight;
-
-
+    private int id;
 
     public PackageData(String operationType, City city) {
         this.operationType = operationType;
@@ -30,10 +29,22 @@ public class PackageData implements Serializable {
         this.value = value;
     }
 
+    public PackageData(String operationType,int id) {
+        this.operationType = operationType;
+        this.id = id;
+    }
 
     public PackageData(String operationType, Aircraft aircraft) {
         this.operationType = operationType;
         this.aircraft = aircraft;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getOperationType() {

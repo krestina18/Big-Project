@@ -15,6 +15,9 @@ public class City implements Serializable {
         this.short_name = short_name;
     }
 
+    public City() {
+    }
+
     public Long getId() {
         return id;
     }

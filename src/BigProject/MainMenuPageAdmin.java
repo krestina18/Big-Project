@@ -63,8 +63,10 @@ public class MainMenuPageAdmin extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 mainFrameAdmin.getMainMenuPageAdmin().setVisible(false);
                 mainFrameAdmin.getSettingsFlightsPageAdmin().setVisible(true);
-                mainFrameAdmin.getAircraftsNames();
-                mainFrameAdmin.getCitiesNames();
+                mainFrameAdmin.listOfCities();
+                mainFrameAdmin.listAicrafts();
+                mainFrameAdmin.getPackageDataFlight();
+                mainFrameAdmin.generateFlightsTable();
             }
         });
 

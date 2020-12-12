@@ -14,11 +14,7 @@ public class MainFrameAdmin extends JFrame {
     private Socket socket;
     private ArrayList<City> cities;
     private ArrayList<Aircraft> aircrafts;
-    private ArrayList<Flight> flights;
-    private ArrayList<String> aircraftsNames;
-    private ArrayList<String> citiesNames;
-    private int aircraftId;
-    private int cityId;
+    private ArrayList<PackageDataFlight> packageDataFlights;
     private SettingsCitiesMenuPageAdmin settingsCitiesMenuPageAdmin;
     private SettingsAircraftsPageAdmin settingsAircraftsPageAdmin;
     private SettingsFlightsPageAdmin settingsFlightsPageAdmin;
@@ -154,7 +150,7 @@ public class MainFrameAdmin extends JFrame {
         }
     }
 
-    public void listOfCities(){
+    public ArrayList<City> listOfCities(){
         PackageData pd = new PackageData("List of cities");
         try {
             outputStream.writeObject(pd);
@@ -163,15 +159,15 @@ public class MainFrameAdmin extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return cities;
     }
 
 
     public void generateCitiesTable(){
-        listOfCities();
         settingsCitiesMenuPageAdmin.generateTable(cities);
     }
 
-    public void listAicrafts(){
+    public ArrayList<Aircraft> listAicrafts(){
         PackageData pd = new PackageData("List of aircrafts");
         try {
             outputStream.writeObject(pd);
@@ -180,20 +176,7 @@ public class MainFrameAdmin extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    public void listFlights(){
-        PackageData pd = new PackageData("List of flights");
-        try {
-            outputStream.writeObject(pd);
-            flights = new ArrayList<>();
-            flights = (ArrayList<Flight>)inputStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void generateFlightsTable(){
-        listFlights();
-        settingsFlightsPageAdmin.generateTable(flights);
+        return aircrafts;
     }
 
     public void addAircraft(Aircraft aircraft){
@@ -214,52 +197,7 @@ public class MainFrameAdmin extends JFrame {
     }
 
     public void generateAircraftsTable(){
-        listAicrafts();
         settingsAircraftsPageAdmin.generateTable(aircrafts);
-    }
-
-    public ArrayList<String> getAircraftsNames(){
-        aircraftsNames = new ArrayList<>();
-        PackageData pd = new PackageData("Get aircrafts names");
-        try {
-            outputStream.writeObject(pd);
-            aircraftsNames = (ArrayList<String>)inputStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return aircraftsNames;
-    }
-    public ArrayList<String> getCitiesNames(){
-        citiesNames = new ArrayList<>();
-        PackageData pd = new PackageData("Get cities names");
-        try {
-            outputStream.writeObject(pd);
-            citiesNames = (ArrayList<String>)inputStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return citiesNames;
-    }
-
-    public int getAircraftId(String aircraftLabel){
-        PackageDataAircraft pda = new PackageDataAircraft("Get aircraft id", aircraftLabel);
-        try {
-            outputStream.writeObject(pda);
-            aircraftId = (Integer)inputStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return aircraftId;
-    }
-    public int getCityId(String cityLabel){
-        PackageDataCity pdc = new PackageDataCity("Get city id", cityLabel);
-        try {
-            outputStream.writeObject(pdc);
-            cityId = (Integer)inputStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return cityId;
     }
 
     public void addFlight(Flight flight){
@@ -269,6 +207,21 @@ public class MainFrameAdmin extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<PackageDataFlight> getPackageDataFlight(){
+        PackageData packageData = new PackageData("List of flights");
+        try {
+            outputStream.writeObject(packageData);
+            packageDataFlights = new ArrayList<>();
+            packageDataFlights = (ArrayList<PackageDataFlight>)inputStream.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return packageDataFlights;
+    }
+    public void generateFlightsTable(){
+        settingsFlightsPageAdmin.generateTable(packageDataFlights);
     }
 
 }

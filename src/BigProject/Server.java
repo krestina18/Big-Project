@@ -11,9 +11,8 @@ public class Server {
     private static Connection connection;
     public static void main(String[] args) throws Exception {
         ArrayList<City> cities = new ArrayList<>();
-        ArrayList<String> aircraftsNames = new ArrayList<>();
-        ArrayList<String> citiesNames = new ArrayList<>();
         ArrayList<Aircraft> aircrafts = new ArrayList<>();
+        ArrayList<PackageDataFlight> packageDataFlights = new ArrayList<>();
         ServerSocket server = new ServerSocket(2050);
         System.out.println("Waiting for a client...");
         Socket socket = server.accept();
@@ -29,12 +28,8 @@ public class Server {
         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 
         PackageData pd = null;
-        PackageDataAircraft pda = null;
-        PackageDataCity pdc = null;
         while(true){
             pd = (PackageData)inputStream.readObject();
-            pda = (PackageDataAircraft)inputStream.readObject();
-            pdc = (PackageDataCity)inputStream.readObject();
             if(pd.getOperationType().equals("List of cities")){
                 cities = getCities();
                 outputStream.writeObject(cities);
@@ -58,25 +53,15 @@ public class Server {
             if(pd.getOperationType().equals("Remove aircraft")){
                 deleteAircraft(pd.getValue());
             }
-            if(pd.getOperationType().equals("Get aircrafts names")){
-                aircraftsNames = getAircraftName();
-                outputStream.writeObject(aircraftsNames);
-            }
-            if(pd.getOperationType().equals("Get cities names")){
-                citiesNames = getCityName();
-                outputStream.writeObject(citiesNames);
-            }
             if(pd.getOperationType().equals("Update aircraft")){
                 updateAircraft(pd.getAircraft());
             }
-            if(pda.getOperationType().equals("Get aircraft id")){
-                outputStream.writeObject(getAircraftId(pda.getAircraftLabel()));
-            }
-            if(pdc.getOperationType().equals("Get city id")){
-                outputStream.writeObject(getCityId(pdc.getCityLabel()));
-            }
             if(pd.getOperationType().equals("Add flight")){
                 addFlight(pd.getFlight());
+            }
+            if(pd.getOperationType().equals("List of flights")){
+                packageDataFlights = getPackageDataFlights();
+                outputStream.writeObject(packageDataFlights);
             }
         }
     }
@@ -204,88 +189,83 @@ public class Server {
         }
     }
 
-    public static ArrayList<String> getAircraftName(){
-        ArrayList<String> aircraftsNames = new ArrayList<>();
-        try {
-            PreparedStatement statement =
-                    connection.prepareStatement("SELECT name FROM aircrafts");
-            ResultSet result = statement.executeQuery();
-            while (result.next()){
-                String name = result.getString("name");
-                aircraftsNames.add(name);
-            }
-            statement.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return aircraftsNames;
-    }
-
-    public static ArrayList<String> getCityName(){
-        ArrayList<String> citiesNames = new ArrayList<>();
-        try {
-            PreparedStatement statement =
-                    connection.prepareStatement("SELECT name FROM cities");
-            ResultSet result = statement.executeQuery();
-            while (result.next()){
-                String name = result.getString("name");
-                citiesNames.add(name);
-            }
-            statement.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return citiesNames;
-    }
-
-    public static int getAircraftId(String aircraftLabel){
-        int aircraftId = 0;
-
-        try {
-            PreparedStatement statement =
-                    connection.prepareStatement("SELECT * FROM aircrafts WHERE name = ?");
-            statement.setString(1, aircraftLabel);
-            ResultSet result = statement.executeQuery();
-
-            if(result.next()){
-                aircraftId = result.getInt("id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return aircraftId;
-    }
-    public static int getCityId(String cityLabel){
-        int cityId = 0;
-        try {
-            PreparedStatement statement =
-                    connection.prepareStatement("SELECT * FROM cities WHERE name = ?");
-            statement.setString(1, cityLabel);
-            ResultSet result = statement.executeQuery();
-            if(result.next()){
-                cityId = result.getInt("id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return cityId;
-    }
-
     public static void addFlight(Flight flight){
         try{
             PreparedStatement statement =
-                    connection.prepareStatement("INSERT INTO flights (id, aircraft_id, departure_city_id, arrival_city_id, departure_time, econom_place_price, business_place_price) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)");
-            statement.setInt(1, flight.getAircraft_id());
-            statement.setInt(2, flight.getDeparture_city_id());
-            statement.setInt(3, flight.getArrival_city_id());
+                    connection.prepareStatement("INSERT INTO flights (id, aircraft_id, departure_city_id, arrival_city_id, departure_time, econom_place_price, business_place_price) VALUES (NULL, ?, ?, ?, ?, ?, ?)");
+            statement.setLong(1, flight.getAircraft_id());
+            statement.setLong(2, flight.getDeparture_city_id());
+            statement.setLong(3, flight.getArrival_city_id());
             statement.setString(4, flight.getDeparture_time());
             statement.setInt(5, flight.getEconom_place_price());
-            statement.setInt(6, flight.getBusiness_place_price());
+            statement.setLong(6, flight.getBusiness_place_price());
             statement.executeUpdate();
             statement.close();
 
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+
+    private static ArrayList<PackageDataFlight> getPackageDataFlights(){
+        ArrayList<PackageDataFlight> packageDataFlights = new ArrayList<>();
+        try{
+            PreparedStatement statement =
+                    connection.prepareStatement("SELECT * FROM flights");
+            ResultSet result = statement.executeQuery();
+            while(result.next()){
+                Long idValue = result.getLong("id");
+                int aircraftId = result.getInt("aircraft_id");
+                int departureCityId = result.getInt("departure_city_id");
+                int arrivalCityId = result.getInt("arrival_city_id");
+                String departureTime = result.getString("departure_time");
+                int epp = result.getInt("econom_place_price");
+                int bpp = result.getInt("bisiness_place_price");
+                Flight flight = new Flight(idValue, aircraftId, departureCityId, arrivalCityId, departureTime, epp, bpp);
+                packageDataFlights.add(new PackageDataFlight(flight, getAircraftById(aircraftId), getCityById(departureCityId), getCityById(arrivalCityId)));
+            }
+            statement.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return packageDataFlights;
+    }
+    public static Aircraft getAircraftById(int aircraftId) {
+        Aircraft aircraft = new Aircraft();
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM aircrafts WHERE id =" + aircraftId);
+            ResultSet result = statement.executeQuery();
+            while(result.next()){
+                Long id = result.getLong("id");
+                String name = result.getString("name");
+                String model = result.getString("model");
+                int bcc = result.getInt("business_class_capacity");
+                int ecc = result.getInt("econom_class_capacity");
+                aircraft = new Aircraft(id, name, model, bcc, ecc);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return aircraft;
+    }
+    public static City getCityById(int cityId) {
+        City city = new City();
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM cities WHERE id =" + cityId);
+            ResultSet result = statement.executeQuery();
+            while(result.next()){
+                Long id = result.getLong("id");
+                String name = result.getString("name");
+                String model = result.getString("country");
+                String shortName = result.getString("short_name");
+                city = new City(id, name, model, shortName);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return city;
     }
 }
